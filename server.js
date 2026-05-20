@@ -92,8 +92,8 @@ async function getTNProducts() {
 async function closeSizesOnTiendanube(sizes) {
   const products = await getTNProducts();
   const lisos = products.filter(p => {
-    const name = (p.name?.es || p.name?.en || '').toLowerCase();
-    return name.includes('liso');
+    const tags = (p.tags || '').toLowerCase();
+    return tags.includes('dtf');
   });
 
   const results = [];
@@ -170,8 +170,8 @@ app.post('/webhook', async (req, res) => {
     const changedSizes = new Set();
 
     for (const item of order.products || []) {
-      const name = (item.name || '').toLowerCase();
-      if (!name.includes('liso')) continue; // Solo descuenta lisos
+      const tags = (item.tags || '').toLowerCase();
+      if (!tags.includes('dtf')) continue; // Solo descuenta productos con etiqueta "dtf"
 
       const sizeVal = (item.variant?.values || []).find(v =>
         SIZES.includes((v.es || v.en || '').toUpperCase())
