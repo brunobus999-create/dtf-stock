@@ -266,7 +266,7 @@ function setStock(catId, size, qty) {
 
 function agregarCategoria() {
   const nombre = document.getElementById('newNombre').value.trim();
-  const etiqueta = document.getElementById('newSkuPrefix').value.trim();
+  const skuPrefix = document.getElementById('newSkuPrefix').value.trim().toUpperCase();
   const emoji = document.getElementById('newEmoji').value.trim() || '📦';
   const err = document.getElementById('catError');
   if (!nombre || !skuPrefix) { err.textContent = 'Completá nombre y etiqueta'; err.style.display='block'; return; }
