@@ -32,7 +32,7 @@ function getCatFromSku(sku) {
 
 function getSizeFromSku(sku) {
   if (!sku) return null;
-  const part
+const parts = sku.split('-');
 
 cat > ~/Downloads/server_nuevo.js << 'SERVEREOF'
 const express = require('express');
