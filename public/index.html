@@ -1,4 +1,3 @@
-pbcopy << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,74 +5,80 @@ pbcopy << 'HTMLEOF'
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DTF Stock Manager</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#f5f4f0;--surface:#fff;--border:#e2e0db;--text:#1a1a18;--muted:#6b6b66;--ok:#1D9E75;--ok-bg:#E1F5EE;--warn:#BA7517;--warn-bg:#FAEEDA;--danger:#A32D2D;--danger-bg:#FCEBEB}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
-.login-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;width:100%;max-width:360px}
-.login-card h1{font-size:20px;font-weight:600;margin-bottom:4px}
-.login-card p{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
-.field{margin-bottom:12px}
-.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
-.field input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);color:var(--text)}
-.btn{padding:10px 18px;border:1px solid var(--border);border-radius:10px;background:var(--surface);cursor:pointer;font-size:14px;color:var(--text)}
-.btn:hover{background:var(--bg)}
-.btn:disabled{opacity:0.5;cursor:default}
-.btn-primary{background:var(--text);color:#fff;border-color:var(--text)}
-.btn-primary:hover{background:#333}
-.btn-danger{background:var(--danger-bg);color:var(--danger);border-color:var(--danger)}
-.app{display:none}
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px}
-.header-logo{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
-.main{max-width:960px;margin:0 auto;padding:1.5rem}
-.tab-bar{display:flex;gap:4px;margin-bottom:1.25rem;border-bottom:1px solid var(--border)}
-.tab{padding:8px 14px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--muted);background:none;border-top:none;border-left:none;border-right:none}
-.tab.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
-.panel{display:none}
-.panel.active{display:block}
-.cat-section{margin-bottom:2rem}
-.cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.cat-title{font-size:15px;font-weight:600}
-.cat-stats{font-size:12px;color:var(--muted)}
-.sizes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
-.size-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem;border-top:3px solid var(--border)}
-.size-name{font-size:13px;font-weight:600;margin-bottom:2px}
-.size-badge{font-size:11px;padding:1px 6px;border-radius:6px;font-weight:500;display:inline-block;margin-bottom:6px}
-.badge-ok{background:var(--ok-bg);color:var(--ok)}.badge-warn{background:var(--warn-bg);color:var(--warn)}.badge-danger{background:var(--danger-bg);color:var(--danger)}
-.size-qty{font-size:32px;font-weight:700;margin-bottom:10px}
-.qty-controls{display:flex;gap:4px;align-items:center}
-.qty-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
-.qty-btn:hover{background:var(--border)}
-.qty-input{width:50px;text-align:center;border:1px solid var(--border);border-radius:8px;padding:4px;font-size:14px;background:var(--surface);height:30px;color:var(--text)}
-.sync-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem}
-.sync-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px}
-.log-box{background:var(--bg);border-radius:10px;padding:0.875rem;margin-top:12px;max-height:220px;overflow-y:auto}
-.log-item{font-size:12px;display:flex;gap:8px;margin-bottom:6px;line-height:1.4}
-.log-time{color:var(--muted);white-space:nowrap}.log-ok{color:var(--ok);font-weight:600}.log-err{color:var(--danger);font-weight:600}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--muted);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-.tag-ok{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500;background:var(--ok-bg);color:var(--ok)}
-.nueva-cat-form{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
-.nueva-cat-form h3{font-size:14px;font-weight:600;margin-bottom:12px}
-.form-row{display:grid;grid-template-columns:1fr 1fr 80px auto;gap:8px;align-items:end}
-.info-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
-.info-card h3{font-size:14px;font-weight:600;margin-bottom:8px}
-.info-card p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:6px}
-.info-card code{background:var(--bg);padding:2px 6px;border-radius:5px;font-size:12px;font-family:monospace}
-.divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg:#f5f4f0;--surface:#fff;--border:#e2e0db;--text:#1a1a18;--muted:#6b6b66;--ok:#1D9E75;--ok-bg:#E1F5EE;--warn:#BA7517;--warn-bg:#FAEEDA;--danger:#A32D2D;--danger-bg:#FCEBEB; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh; }
+  .login-wrap { display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem; }
+  .login-card { background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;width:100%;max-width:360px; }
+  .login-card h1 { font-size:20px;font-weight:600;margin-bottom:4px; }
+  .login-card p { font-size:13px;color:var(--muted);margin-bottom:1.5rem; }
+  .field { margin-bottom:12px; }
+  .field label { display:block;font-size:13px;color:var(--muted);margin-bottom:4px; }
+  .field input,.field select { width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg);color:var(--text); }
+  .btn { padding:10px 18px;border:1px solid var(--border);border-radius:10px;background:var(--surface);cursor:pointer;font-size:14px;color:var(--text);transition:background 0.15s; }
+  .btn:hover { background:var(--bg); }
+  .btn:disabled { opacity:0.5;cursor:default; }
+  .btn-primary { background:var(--text);color:#fff;border-color:var(--text); }
+  .btn-primary:hover { background:#333; }
+  .btn-danger { background:var(--danger-bg);color:var(--danger);border-color:var(--danger); }
+  .app { display:none; }
+  .header { background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px; }
+  .header-logo { font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px; }
+  .dot { width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block; }
+  .main { max-width:960px;margin:0 auto;padding:1.5rem; }
+  .tab-bar { display:flex;gap:4px;margin-bottom:1.25rem;border-bottom:1px solid var(--border); }
+  .tab { padding:8px 14px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--muted);background:none;border-top:none;border-left:none;border-right:none; }
+  .tab.active { color:var(--text);border-bottom-color:var(--text);font-weight:500; }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .cat-section { margin-bottom:2rem; }
+  .cat-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
+  .cat-title { font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px; }
+  .cat-stats { font-size:12px;color:var(--muted); }
+  .sizes-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px; }
+  .size-card { background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem;border-top:3px solid var(--border); }
+  .size-card.ok{border-top-color:#1D9E75}.size-card.warn{border-top-color:#BA7517}.size-card.danger{border-top-color:#A32D2D}
+  .size-name { font-size:13px;font-weight:600;margin-bottom:2px; }
+  .size-badge { font-size:11px;padding:1px 6px;border-radius:6px;font-weight:500;display:inline-block;margin-bottom:6px; }
+  .badge-ok{background:var(--ok-bg);color:var(--ok)}.badge-warn{background:var(--warn-bg);color:var(--warn)}.badge-danger{background:var(--danger-bg);color:var(--danger)}
+  .size-qty { font-size:32px;font-weight:700;margin-bottom:10px; }
+  .size-qty.ok{color:var(--ok)}.size-qty.warn{color:var(--warn)}.size-qty.danger{color:var(--danger)}
+  .qty-controls { display:flex;gap:4px;align-items:center; }
+  .qty-btn { width:30px;height:30px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center; }
+  .qty-btn:hover { background:var(--border); }
+  .qty-input { flex:1;text-align:center;border:1px solid var(--border);border-radius:8px;padding:4px;font-size:14px;background:var(--surface);height:30px;min-width:0; }
+  .sync-box { background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem; }
+  .sync-header { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px; }
+  .log-box { background:var(--bg);border-radius:10px;padding:0.875rem;margin-top:12px;max-height:220px;overflow-y:auto; }
+  .log-item { font-size:12px;display:flex;gap:8px;margin-bottom:6px;line-height:1.4; }
+  .log-time{color:var(--muted);white-space:nowrap}.log-ok{color:var(--ok);font-weight:600}.log-err{color:var(--danger);font-weight:600}
+  .spinner { display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--muted);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle; }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .tag-ok{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500;background:var(--ok-bg);color:var(--ok)}
+  .nueva-cat-form { background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem; }
+  .nueva-cat-form h3 { font-size:14px;font-weight:600;margin-bottom:12px; }
+  .form-row { display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end; }
+  .info-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+  .info-card h3{font-size:14px;font-weight:600;margin-bottom:8px}
+  .info-card p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:6px}
+  .info-card code{background:var(--bg);padding:2px 6px;border-radius:5px;font-size:12px;font-family:monospace}
+  .cat-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;background:var(--bg);border:1px solid var(--border);color:var(--muted);margin-right:4px;margin-bottom:4px}
+  .divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+  @media(max-width:600px){.form-row{grid-template-columns:1fr 1fr}.sizes-grid{grid-template-columns:repeat(3,1fr)}.main{padding:1rem}}
 </style>
 </head>
 <body>
+
 <div class="login-wrap" id="loginWrap">
   <div class="login-card">
-    <h1>DTF Stock</h1>
-    <p>Ingresa la contrasena para acceder al panel.</p>
-    <div class="field"><label>Contrasena</label><input type="password" id="loginPass" placeholder="..." /></div>
+    <h1>🖨️ DTF Stock</h1>
+    <p>Ingresá la contraseña para acceder al panel.</p>
+    <div class="field"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••••••" /></div>
     <button class="btn btn-primary" onclick="doLogin()" style="width:100%">Ingresar</button>
-    <p id="loginError" style="color:var(--danger);font-size:13px;margin-top:8px;display:none">Contrasena incorrecta</p>
+    <p id="loginError" style="color:var(--danger);font-size:13px;margin-top:8px;display:none">Contraseña incorrecta</p>
   </div>
 </div>
+
 <div class="app" id="appWrap">
   <div class="header">
     <div class="header-logo"><span class="dot"></span>DTF Stock Manager</div>
@@ -82,200 +87,196 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="btn" onclick="logout()" style="font-size:12px;padding:6px 12px">Salir</button>
     </div>
   </div>
+
   <div class="main">
     <div class="tab-bar">
       <button class="tab active" onclick="setTab('stock')">Stock</button>
-      <button class="tab" onclick="setTab('categorias')">Categorias</button>
+      <button class="tab" onclick="setTab('categorias')">Categorías</button>
       <button class="tab" onclick="setTab('logs')">Historial</button>
-      <button class="tab" onclick="setTab('config')">Configuracion</button>
+      <button class="tab" onclick="setTab('config')">Configuración</button>
     </div>
+
+    <!-- STOCK -->
     <div class="panel active" id="tab-stock">
       <div id="stockCats"></div>
       <div class="sync-box">
         <div class="sync-header">
           <div>
             <p style="font-size:14px;font-weight:600">Sincronizar con Tiendanube</p>
-            <p style="font-size:13px;color:var(--muted)">Actualiza el stock de todos los talles.</p>
+            <p style="font-size:13px;color:var(--muted)">Cierra el stock de todos los talles en 0 en tu tienda.</p>
           </div>
-          <button class="btn btn-primary" id="syncBtn" onclick="doSync()">Sincronizar ahora</button>
+          <button class="btn btn-primary" id="syncBtn" onclick="doSync()">Sincronizar ahora →</button>
         </div>
         <div class="log-box" id="syncResult" style="display:none"></div>
       </div>
     </div>
+
+    <!-- CATEGORÍAS -->
     <div class="panel" id="tab-categorias">
       <div class="nueva-cat-form">
-        <h3>Agregar nueva categoria</h3>
+        <h3>➕ Agregar nueva categoría</h3>
         <div class="form-row">
-          <div class="field" style="margin:0"><label>Nombre</label><input id="newNombre" placeholder="Remeras Rojas" /></div>
-          <div class="field" style="margin:0"><label>Prefijo SKU</label><input id="newSkuPrefix" placeholder="RR" /></div>
-          <div class="field" style="margin:0"><label>Emoji</label><input id="newEmoji" placeholder="👕" /></div>
-          <button class="btn btn-primary" onclick="agregarCategoria()" style="height:42px;margin-bottom:0">Agregar</button>
+          <div class="field" style="margin:0">
+            <label>Nombre</label>
+            <input id="newNombre" placeholder="Ej: Remeras Rojas" />
+          </div>
+          <div class="field" style="margin:0">
+            <label>Prefijo SKU</label>
+            <input id="newSkuPrefix" placeholder="Ej: RR" />
+          </div>
+          <div class="field" style="margin:0">
+            <label>Emoji</label>
+            <input id="newEmoji" placeholder="👕" style="max-width:80px" />
+          </div>
+          <button class="btn btn-primary" onclick="agregarCategoria()" style="margin-bottom:0;height:42px">Agregar</button>
         </div>
         <p id="catError" style="color:var(--danger);font-size:13px;margin-top:8px;display:none"></p>
       </div>
       <div id="catsList"></div>
     </div>
+
+    <!-- HISTORIAL -->
     <div class="panel" id="tab-logs">
       <div class="sync-box">
         <div class="sync-header">
-          <div><p style="font-size:14px;font-weight:600">Historial</p></div>
+          <div><p style="font-size:14px;font-weight:600">Historial de eventos</p><p style="font-size:13px;color:var(--muted)">Pedidos, sincronizaciones y cambios.</p></div>
           <button class="btn" onclick="loadLogs()">Actualizar</button>
         </div>
         <div class="log-box" id="logsBox" style="max-height:400px"><p style="font-size:13px;color:var(--muted)">Cargando...</p></div>
       </div>
     </div>
+
+    <!-- CONFIG -->
     <div class="panel" id="tab-config">
       <div class="info-card">
-        <h3>URL del Webhook</h3>
-        <p>Pega esta URL en Tiendanube con el evento order/paid.</p>
-        <code id="webhookUrl">-</code>
+        <h3>🔗 URL del Webhook</h3>
+        <p>Pegá esta URL en Tiendanube → Configuración → Notificaciones → Webhooks con el evento <strong>order/paid</strong>.</p>
+        <code id="webhookUrl">—</code>
       </div>
       <div class="info-card">
-        <h3>SKUs configurados</h3>
-        <p>RN = Remeras Negras</p>
-        <p>RB = Remeras Blancas</p>
-        <p>BN = Buzos Negros</p>
-        <p>BV = Buzos Verdes</p>
-        <p>BB = Buzos Boxy Azules</p>
+        <h3>🏷️ Cómo funciona la detección</h3>
+        <p>Cada producto en Tiendanube debe tener la etiqueta correspondiente a su categoría. Cuando entra un pedido, la app detecta la etiqueta y descuenta del stock correcto.</p>
+        <p>Las etiquetas actuales están en la pestaña <strong>Categorías</strong>.</p>
+      </div>
+      <div class="info-card">
+        <h3>📐 Talles</h3>
+        <p>Todas las categorías usan: <code>S · M · L · XL · XXL</code></p>
       </div>
     </div>
   </div>
 </div>
+
 <script>
-var SIZES = ['S','M','L','XL','XXL'];
-var PASS = '';
-var DATA = {stock:{}, categorias:[]};
+const SIZES = ['S','M','L','XL','XXL'];
+let PASS = '';
+let DATA = { stock: {}, categorias: [] };
 
 function doLogin() {
-  var p = document.getElementById('loginPass').value;
-  fetch('/api/stock', {headers: {'x-admin-password': p}})
-    .then(function(r) { if (!r.ok) throw new Error(); return r.json(); })
-    .then(function(d) {
+  const p = document.getElementById('loginPass').value;
+  fetch('/api/stock', { headers: { 'x-admin-password': p } })
+    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+    .then(d => {
       PASS = p; DATA = d;
       document.getElementById('loginWrap').style.display = 'none';
       document.getElementById('appWrap').style.display = 'block';
       document.getElementById('webhookUrl').textContent = window.location.origin + '/webhook';
       renderStock(); renderCats();
-    }).catch(function() { document.getElementById('loginError').style.display = 'block'; });
+    }).catch(() => { document.getElementById('loginError').style.display = 'block'; });
 }
-
-document.getElementById('loginPass').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') doLogin();
-});
-
-function logout() {
-  PASS = '';
-  document.getElementById('appWrap').style.display = 'none';
-  document.getElementById('loginWrap').style.display = 'flex';
-}
+document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+function logout() { PASS=''; document.getElementById('appWrap').style.display='none'; document.getElementById('loginWrap').style.display='flex'; }
 
 function setTab(name) {
-  var names = ['stock','categorias','logs','config'];
-  document.querySelectorAll('.tab').forEach(function(t, i) {
-    t.classList.toggle('active', names[i] === name);
-  });
-  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'logs') loadLogs();
+  const names = ['stock','categorias','logs','config'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i]===name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name==='logs') loadLogs();
 }
 
-function getColor(qty) { return qty === 0 ? 'danger' : qty <= 5 ? 'warn' : 'ok'; }
-
+function getColor(qty) { return qty===0?'danger':qty<=5?'warn':'ok'; }
 function getBadge(qty) {
-  if (qty === 0) return '<span class="size-badge badge-danger">Sin stock</span>';
-  if (qty <= 5) return '<span class="size-badge badge-warn">Stock bajo</span>';
+  if(qty===0) return '<span class="size-badge badge-danger">Sin stock</span>';
+  if(qty<=5) return '<span class="size-badge badge-warn">Stock bajo</span>';
   return '<span class="size-badge badge-ok">Disponible</span>';
 }
 
 function renderStock() {
-  var cats = DATA.categorias;
-  var stock = DATA.stock;
-  var html = '';
-  for (var ci = 0; ci < cats.length; ci++) {
-    var cat = cats[ci];
-    var catStock = stock[cat.id] || {};
-    var total = 0;
-    var sinStock = 0;
-    for (var si = 0; si < SIZES.length; si++) {
-      total += catStock[SIZES[si]] || 0;
-      if ((catStock[SIZES[si]] || 0) === 0) sinStock++;
-    }
-    var cards = '';
-    for (var si2 = 0; si2 < SIZES.length; si2++) {
-      var size = SIZES[si2];
-      var qty = catStock[size] || 0;
-      var c = getColor(qty);
-      var bc = c==='danger'?'#A32D2D':c==='warn'?'#BA7517':'#1D9E75';
-      var qc = c==='danger'?'var(--danger)':c==='warn'?'var(--warn)':'var(--ok)';
-      var cid = cat.id;
-      cards += '<div class="size-card" style="border-top:3px solid '+bc+'">';
-      cards += '<div class="size-name">Talle '+size+'</div>';
-      cards += getBadge(qty);
-      cards += '<div class="size-qty" style="color:'+qc+'">'+qty+'</div>';
-      cards += '<div class="qty-controls">';
-      cards += '<button class="qty-btn" onclick="changeStock('+JSON.stringify(cid)+','+JSON.stringify(size)+',-1)">-</button>';
-      cards += '<input class="qty-input" type="number" min="0" value="'+qty+'" onfocus="this.select()" onchange="setStockVal('+JSON.stringify(cid)+','+JSON.stringify(size)+',this.value)" onblur="setStockVal('+JSON.stringify(cid)+','+JSON.stringify(size)+',this.value)" />';
-      cards += '<button class="qty-btn" onclick="changeStock('+JSON.stringify(cid)+','+JSON.stringify(size)+',1)">+</button>';
-      cards += '</div></div>';
-    }
-    html += '<div class="cat-section">';
-    html += '<div class="cat-header"><div class="cat-title">'+cat.emoji+' '+cat.nombre+'</div>';
-    html += '<div class="cat-stats">Total: '+total+' · Sin stock: '+sinStock+' talles</div></div>';
-    html += '<div class="sizes-grid">'+cards+'</div></div><hr class="divider">';
-  }
-  document.getElementById('stockCats').innerHTML = html;
+  const { stock, categorias } = DATA;
+  const container = document.getElementById('stockCats');
+  container.innerHTML = categorias.map(cat => {
+    const catStock = stock[cat.id] || {};
+    const total = SIZES.reduce((a,s) => a+(catStock[s]||0), 0);
+    const sinStock = SIZES.filter(s => (catStock[s]||0)===0).length;
+    const cards = SIZES.map(size => {
+      const qty = catStock[size]||0;
+      const c = getColor(qty);
+      return `<div class="size-card ${c}">
+        <div class="size-name">Talle ${size}</div>
+        ${getBadge(qty)}
+        <div class="size-qty ${c}">${qty}</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeStock('${cat.id}','${size}',-1)">−</button>
+          <input class="qty-input" type="number" min="0" value="${qty}"
+            onchange="setStock('${cat.id}','${size}',parseInt(this.value)||0)"
+            onblur="setStock('${cat.id}','${size}',parseInt(this.value)||0)" />
+          <button class="qty-btn" onclick="changeStock('${cat.id}','${size}',1)">+</button>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="cat-section">
+      <div class="cat-header">
+        <div class="cat-title">${cat.emoji} ${cat.nombre}</div>
+        <div class="cat-stats">Total: ${total} · Sin stock: ${sinStock} talles</div>
+      </div>
+      <div class="sizes-grid">${cards}</div>
+    </div><hr class="divider">`;
+  }).join('');
 }
 
 function renderCats() {
-  var html = '';
-  for (var i = 0; i < DATA.categorias.length; i++) {
-    var cat = DATA.categorias[i];
-    html += '<div class="info-card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">';
-    html += '<div><p style="font-size:14px;font-weight:600">'+cat.emoji+' '+cat.nombre+'</p>';
-    html += '<p style="font-size:13px;color:var(--muted)">SKU: <code>'+cat.skuPrefix+'</code></p></div>';
-    html += '<button class="btn btn-danger" onclick="eliminarCategoria('+JSON.stringify(cat.id)+','+JSON.stringify(cat.nombre)+')" style="font-size:12px;padding:6px 12px">Eliminar</button>';
-    html += '</div>';
-  }
-  document.getElementById('catsList').innerHTML = html;
+  const container = document.getElementById('catsList');
+  container.innerHTML = DATA.categorias.map(cat => `
+    <div class="info-card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <p style="font-size:14px;font-weight:600">${cat.emoji} ${cat.nombre}</p>
+        <p style="font-size:13px;color:var(--muted);margin-top:2px">Prefijo SKU: <code>${cat.skuPrefix}-S, ${cat.skuPrefix}-M...</code></p>
+      </div>
+      <button class="btn btn-danger" onclick="eliminarCategoria('${cat.id}','${cat.nombre}')" style="font-size:12px;padding:6px 12px">Eliminar</button>
+    </div>`).join('');
 }
 
 function loadData() {
-  fetch('/api/stock', {headers: {'x-admin-password': PASS}})
-    .then(function(r) { return r.json(); })
-    .then(function(d) { DATA = d; renderStock(); renderCats(); });
+  fetch('/api/stock', { headers: { 'x-admin-password': PASS } })
+    .then(r => r.json()).then(d => { DATA = d; renderStock(); renderCats(); });
 }
 
 function changeStock(catId, size, delta) {
-  var qty = ((DATA.stock[catId] && DATA.stock[catId][size]) || 0) + delta;
-  setStock(catId, size, Math.max(0, qty));
-}
-
-function setStockVal(catId, size, val) {
-  setStock(catId, size, parseInt(val) || 0);
+  const qty = (DATA.stock[catId]?.[size] || 0) + delta;
+  setStock(catId, size, qty);
 }
 
 function setStock(catId, size, qty) {
-  qty = Math.max(0, qty);
   fetch('/api/stock', {
     method: 'PUT',
-    headers: {'x-admin-password': PASS, 'Content-Type': 'application/json'},
-    body: JSON.stringify({categoriaId: catId, size: size, quantity: qty})
-  }).then(function(r) { return r.json(); }).then(function(d) { DATA = d; renderStock(); });
+    headers: { 'x-admin-password': PASS, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ categoriaId: catId, size, quantity: Math.max(0, qty) })
+  }).then(r => r.json()).then(d => { DATA = d; renderStock(); });
 }
 
 function agregarCategoria() {
-  var nombre = document.getElementById('newNombre').value.trim();
-  var skuPrefix = document.getElementById('newSkuPrefix').value.trim().toUpperCase();
-  var emoji = document.getElementById('newEmoji').value.trim() || '📦';
-  var err = document.getElementById('catError');
-  if (!nombre || !skuPrefix) { err.textContent = 'Completa nombre y prefijo SKU'; err.style.display = 'block'; return; }
+  const nombre = document.getElementById('newNombre').value.trim();
+  const etiqueta = document.getElementById('newSkuPrefix').value.trim();
+  const emoji = document.getElementById('newEmoji').value.trim() || '📦';
+  const err = document.getElementById('catError');
+  if (!nombre || !skuPrefix) { err.textContent = 'Completá nombre y etiqueta'; err.style.display='block'; return; }
   err.style.display = 'none';
   fetch('/api/categorias', {
     method: 'POST',
-    headers: {'x-admin-password': PASS, 'Content-Type': 'application/json'},
-    body: JSON.stringify({nombre: nombre, skuPrefix: skuPrefix, emoji: emoji})
-  }).then(function(r) { return r.json(); }).then(function(d) {
-    if (d.error) { err.textContent = d.error; err.style.display = 'block'; return; }
+    headers: { 'x-admin-password': PASS, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre, skuPrefix, emoji })
+  }).then(r => r.json()).then(d => {
+    if (d.error) { err.textContent = d.error; err.style.display='block'; return; }
     document.getElementById('newNombre').value = '';
     document.getElementById('newSkuPrefix').value = '';
     document.getElementById('newEmoji').value = '';
@@ -284,40 +285,40 @@ function agregarCategoria() {
 }
 
 function eliminarCategoria(id, nombre) {
-  if (!confirm('Eliminar ' + nombre + '?')) return;
-  fetch('/api/categorias/' + id, {method: 'DELETE', headers: {'x-admin-password': PASS}})
-    .then(function(r) { return r.json(); }).then(function() { loadData(); });
+  if (!confirm(`¿Eliminár la categoría "${nombre}"? El stock guardado se perderá.`)) return;
+  fetch('/api/categorias/' + id, {
+    method: 'DELETE', headers: { 'x-admin-password': PASS }
+  }).then(r => r.json()).then(() => loadData());
 }
 
 function doSync() {
-  var btn = document.getElementById('syncBtn');
-  var box = document.getElementById('syncResult');
+  const btn = document.getElementById('syncBtn');
+  const box = document.getElementById('syncResult');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sincronizando...';
   box.style.display = 'none';
-  fetch('/api/sync', {method: 'POST', headers: {'x-admin-password': PASS}})
-    .then(function(r) { return r.json(); }).then(function(d) {
-      btn.disabled = false; btn.textContent = 'Sincronizar ahora';
+  fetch('/api/sync', { method: 'POST', headers: { 'x-admin-password': PASS } })
+    .then(r => r.json()).then(d => {
+      btn.disabled = false; btn.textContent = 'Sincronizar ahora →';
       box.style.display = 'block';
-      if (d.error) { box.innerHTML = '<div class="log-item"><span class="log-err">X</span><span>' + d.error + '</span></div>'; return; }
-      box.innerHTML = (d.results || []).map(function(r) {
-        return '<div class="log-item"><span class="' + (r.charAt(0) === '✓' ? 'log-ok' : 'log-err') + '">' + r.charAt(0) + '</span><span>' + r.slice(2) + '</span></div>';
-      }).join('') || '<div class="log-item"><span class="log-ok">OK</span><span>Todo sincronizado</span></div>';
+      if (d.error) { box.innerHTML = `<div class="log-item"><span class="log-err">✗</span><span>${d.error}</span></div>`; return; }
+      box.innerHTML = (d.results||[]).map(r =>
+        `<div class="log-item"><span class="${r.startsWith('✓')?'log-ok':'log-err'}">${r[0]}</span><span>${r.slice(2)}</span></div>`
+      ).join('') || '<div class="log-item"><span class="log-ok">✓</span><span>Todo sincronizado</span></div>';
       loadData();
-    }).catch(function() { btn.disabled = false; btn.textContent = 'Sincronizar ahora'; });
+    }).catch(() => { btn.disabled=false; btn.textContent='Sincronizar ahora →'; });
 }
 
 function loadLogs() {
-  fetch('/api/logs', {headers: {'x-admin-password': PASS}})
-    .then(function(r) { return r.json(); }).then(function(logs) {
-      var box = document.getElementById('logsBox');
-      if (!logs.length) { box.innerHTML = '<p style="font-size:13px;color:var(--muted)">Sin eventos todavia.</p>'; return; }
-      box.innerHTML = logs.map(function(l) {
-        var time = new Date(l.ts).toLocaleString('es-AR', {dateStyle:'short', timeStyle:'short'});
-        return '<div class="log-item"><span class="log-time">' + time + '</span><span class="' + (l.tipo === 'error' ? 'log-err' : 'log-ok') + '">' + (l.tipo === 'error' ? 'X' : 'OK') + '</span><span>' + l.mensaje + '</span></div>';
+  fetch('/api/logs', { headers: { 'x-admin-password': PASS } })
+    .then(r => r.json()).then(logs => {
+      const box = document.getElementById('logsBox');
+      if (!logs.length) { box.innerHTML = '<p style="font-size:13px;color:var(--muted)">Sin eventos todavía.</p>'; return; }
+      box.innerHTML = logs.map(l => {
+        const time = new Date(l.ts).toLocaleString('es-AR', { dateStyle:'short', timeStyle:'short' });
+        return `<div class="log-item"><span class="log-time">${time}</span><span class="${l.tipo==='error'?'log-err':'log-ok'}">${l.tipo==='error'?'✗':'✓'}</span><span>${l.mensaje}</span></div>`;
       }).join('');
     });
 }
 </script>
 </body>
 </html>
-HTMLEOF
