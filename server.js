@@ -120,24 +120,6 @@ app.get('/api/stock', auth, function(req, res) {
   res.json({ stock: getStock(), categorias: getCategorias() });
 });
 
-app.put('/api/stock', auth, function(req, res) {
-  const categoriaId = req.body.categoriaId;
-  const size = req.body.size;
-  const quantity = req.body.quantity;
-  if (!SIZES.includes(size) || typeof quantity !== 'number') return res.status(400).json({ error: 'Datos invalidos' });
-  const stock = getStock();
-  if (!stock[categoriaId]) stock[categoriaId] = {};
-  stock[categoriaId][size] = Math.max(0, Math.round(quantity));
-  saveStock(stock);
-  addLog({ tipo: 'manual', mensaje: 'Stock ' + categoriaId + ' talle ' + size + ' actualizado a ' + stock[categoriaId][size] });
-  res.json({ ok: true, stock: stock, categorias: getCategorias() });
-});
-
-app.get('/api/logs', auth, function(req, res) {
-  if (!fs.existsSync(LOG_FILE)) return res.json([]);
-  try { res.json(JSON.parse(fs.readFileSync(LOG_FILE, 'utf8'))); } catch(e) { res.json([]); }
-});
-
 async function getTNProducts() {
   let all = [];
   let page = 1;
@@ -155,7 +137,7 @@ async function getTNProducts() {
   return all;
 }
 
-async function closeSizesBySku(skuPrefix, sizes, products) {
+async function updateTNVariantsBySku(skuPrefix, size, stockQty, products) {
   const results = [];
   for (let i = 0; i < products.length; i++) {
     const product = products[i];
@@ -164,16 +146,15 @@ async function closeSizesBySku(skuPrefix, sizes, products) {
     for (let j = 0; j < variants.length; j++) {
       const variant = variants[j];
       const sku = (variant.sku || '').toUpperCase();
-      if (sku.indexOf(skuPrefix + '-') !== 0) continue;
-      const size = getSizeFromSku(sku);
-      if (!size || !sizes.includes(size)) continue;
+      if (sku !== skuPrefix + '-' + size) continue;
       try {
         await fetch(
           'https://api.tiendanube.com/v1/' + TN_STORE_ID + '/products/' + product.id + '/variants/' + variant.id,
           { method: 'PUT', headers: { 'Authentication': 'bearer ' + TN_TOKEN, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stock: 0 }) }
+            body: JSON.stringify({ stock: stockQty }) }
         );
-        results.push('✓ ' + name + ' · ' + size + ' cerrado');
+        const accion = stockQty === 0 ? 'cerrado' : 'stock actualizado a ' + stockQty;
+        results.push('✓ ' + name + ' · ' + size + ' ' + accion);
       } catch(e) {
         results.push('✗ Error ' + name + ' · ' + size);
       }
@@ -181,6 +162,38 @@ async function closeSizesBySku(skuPrefix, sizes, products) {
   }
   return results;
 }
+
+app.put('/api/stock', auth, async function(req, res) {
+  const categoriaId = req.body.categoriaId;
+  const size = req.body.size;
+  const quantity = req.body.quantity;
+  if (!SIZES.includes(size) || typeof quantity !== 'number') return res.status(400).json({ error: 'Datos invalidos' });
+  const stock = getStock();
+  if (!stock[categoriaId]) stock[categoriaId] = {};
+  stock[categoriaId][size] = Math.max(0, Math.round(quantity));
+  saveStock(stock);
+  if (TN_TOKEN && TN_STORE_ID) {
+    try {
+      const cats = getCategorias();
+      const cat = cats.find(function(c) { return c.id === categoriaId; });
+      if (cat) {
+        const products = await getTNProducts();
+        const results = await updateTNVariantsBySku(cat.skuPrefix, size, stock[categoriaId][size], products);
+        addLog({ tipo: 'manual', mensaje: 'Stock ' + categoriaId + ' talle ' + size + ' → ' + stock[categoriaId][size], resultados: results });
+      }
+    } catch(e) {
+      addLog({ tipo: 'error', mensaje: 'Error sync TN: ' + e.message });
+    }
+  } else {
+    addLog({ tipo: 'manual', mensaje: 'Stock ' + categoriaId + ' talle ' + size + ' → ' + stock[categoriaId][size] });
+  }
+  res.json({ ok: true, stock: stock, categorias: getCategorias() });
+});
+
+app.get('/api/logs', auth, function(req, res) {
+  if (!fs.existsSync(LOG_FILE)) return res.json([]);
+  try { res.json(JSON.parse(fs.readFileSync(LOG_FILE, 'utf8'))); } catch(e) { res.json([]); }
+});
 
 app.post('/api/sync', auth, async function(req, res) {
   if (!TN_TOKEN || !TN_STORE_ID) return res.status(400).json({ error: 'Falta TN_TOKEN o TN_STORE_ID' });
@@ -191,14 +204,15 @@ app.post('/api/sync', auth, async function(req, res) {
     const results = [];
     for (let i = 0; i < cats.length; i++) {
       const cat = cats[i];
-      const zeroSizes = SIZES.filter(function(s) { return (stock[cat.id] && stock[cat.id][s] || 0) === 0; });
-      if (zeroSizes.length > 0) {
-        const r = await closeSizesBySku(cat.skuPrefix, zeroSizes, products);
+      for (let j = 0; j < SIZES.length; j++) {
+        const size = SIZES[j];
+        const qty = (stock[cat.id] && stock[cat.id][size]) || 0;
+        const r = await updateTNVariantsBySku(cat.skuPrefix, size, qty, products);
         results.push.apply(results, r);
       }
     }
-    if (results.length === 0) results.push('No hay talles en 0 - todo en orden');
-    addLog({ tipo: 'sync_manual', mensaje: 'Sync manual', resultados: results });
+    if (results.length === 0) results.push('No hay productos con SKU configurado');
+    addLog({ tipo: 'sync_manual', mensaje: 'Sync manual completo', resultados: results });
     res.json({ ok: true, results: results });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -236,10 +250,14 @@ app.post('/webhook', async function(req, res) {
     for (let i = 0; i < cats.length; i++) {
       const cat = cats[i];
       if (!changed[cat.id]) continue;
+      for (let j = 0; j < changed[cat.id].length; j++) {
+        const size = changed[cat.id][j];
+        const qty = stock[cat.id][size];
+        await updateTNVariantsBySku(cat.skuPrefix, size, qty, products);
+      }
       const zeroSizes = changed[cat.id].filter(function(s) { return stock[cat.id][s] === 0; });
       if (zeroSizes.length > 0) {
-        const r = await closeSizesBySku(cat.skuPrefix, zeroSizes, products);
-        addLog({ tipo: 'webhook_pedido', mensaje: 'Pedido #' + id + ' - ' + cat.nombre + ' cerrados: [' + zeroSizes.join(', ') + ']', resultados: r });
+        addLog({ tipo: 'webhook_pedido', mensaje: 'Pedido #' + id + ' - ' + cat.nombre + ' cerrados: [' + zeroSizes.join(', ') + ']' });
       } else {
         addLog({ tipo: 'webhook_pedido', mensaje: 'Pedido #' + id + ' - ' + cat.nombre + ' descontados: [' + changed[cat.id].join(', ') + ']' });
       }
