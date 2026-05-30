@@ -191,4 +191,185 @@ function getBadge(qty) {
   return '<span class="size-badge badge-ok">Disponible</span>';
 }
 
-function renderStoc
+function renderStock() {
+  var cats = DATA.categorias;
+  var stock = DATA.stock;
+  var container = document.getElementById('stockCats');
+  container.innerHTML = '';
+  for (var ci = 0; ci < cats.length; ci++) {
+    var cat = cats[ci];
+    var catStock = stock[cat.id] || {};
+    var total = 0;
+    var sinStock = 0;
+    for (var si = 0; si < SIZES.length; si++) {
+      total += catStock[SIZES[si]] || 0;
+      if ((catStock[SIZES[si]] || 0) === 0) sinStock++;
+    }
+    var section = document.createElement('div');
+    section.className = 'cat-section';
+    var header = document.createElement('div');
+    header.className = 'cat-header';
+    header.innerHTML = '<div class="cat-title">' + cat.emoji + ' ' + cat.nombre + '</div><div class="cat-stats">Total: ' + total + ' - Sin stock: ' + sinStock + ' talles</div>';
+    section.appendChild(header);
+    var grid = document.createElement('div');
+    grid.className = 'sizes-grid';
+    for (var si2 = 0; si2 < SIZES.length; si2++) {
+      var size = SIZES[si2];
+      var qty = catStock[size] || 0;
+      var c = getColor(qty);
+      var bc = c === 'danger' ? '#A32D2D' : c === 'warn' ? '#BA7517' : '#1D9E75';
+      var qc = c === 'danger' ? 'var(--danger)' : c === 'warn' ? 'var(--warn)' : 'var(--ok)';
+      var card = document.createElement('div');
+      card.className = 'size-card';
+      card.style.borderTop = '3px solid ' + bc;
+      var nameEl = document.createElement('div');
+      nameEl.className = 'size-name';
+      nameEl.textContent = 'Talle ' + size;
+      card.appendChild(nameEl);
+      var badgeEl = document.createElement('div');
+      badgeEl.innerHTML = getBadge(qty);
+      card.appendChild(badgeEl);
+      var qtyEl = document.createElement('div');
+      qtyEl.className = 'size-qty';
+      qtyEl.style.color = qc;
+      qtyEl.textContent = qty;
+      card.appendChild(qtyEl);
+      var controls = document.createElement('div');
+      controls.className = 'qty-controls';
+      var minusBtn = document.createElement('button');
+      minusBtn.className = 'qty-btn';
+      minusBtn.textContent = '-';
+      (function(cid, sz) {
+        minusBtn.addEventListener('click', function() { changeStock(cid, sz, -1); });
+      })(cat.id, size);
+      var input = document.createElement('input');
+      input.className = 'qty-input';
+      input.type = 'number';
+      input.min = '0';
+      input.value = qty;
+      (function(cid, sz) {
+        input.addEventListener('focus', function() { this.select(); });
+        input.addEventListener('keydown', function(e) { if (e.key === 'Enter') this.blur(); });
+        input.addEventListener('change', function() { scheduleStock(cid, sz, parseInt(this.value) || 0); });
+        input.addEventListener('blur', function() { scheduleStock(cid, sz, parseInt(this.value) || 0); });
+      })(cat.id, size);
+      var plusBtn = document.createElement('button');
+      plusBtn.className = 'qty-btn';
+      plusBtn.textContent = '+';
+      (function(cid, sz) {
+        plusBtn.addEventListener('click', function() { changeStock(cid, sz, 1); });
+      })(cat.id, size);
+      controls.appendChild(minusBtn);
+      controls.appendChild(input);
+      controls.appendChild(plusBtn);
+      card.appendChild(controls);
+      grid.appendChild(card);
+    }
+    section.appendChild(grid);
+    container.appendChild(section);
+    var hr = document.createElement('hr');
+    hr.className = 'divider';
+    container.appendChild(hr);
+  }
+}
+
+function renderCats() {
+  var html = '';
+  for (var i = 0; i < DATA.categorias.length; i++) {
+    var cat = DATA.categorias[i];
+    html += '<div class="info-card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><div><p style="font-size:14px;font-weight:600">' + cat.emoji + ' ' + cat.nombre + '</p><p style="font-size:13px;color:var(--muted)">SKU: <code>' + cat.skuPrefix + '</code></p></div><button class="btn btn-danger" data-id="' + cat.id + '" data-nombre="' + cat.nombre + '" style="font-size:12px;padding:6px 12px">Eliminar</button></div>';
+  }
+  var container = document.getElementById('catsList');
+  container.innerHTML = html;
+  container.querySelectorAll('.btn-danger').forEach(function(btn) {
+    btn.addEventListener('click', function() { eliminarCategoria(this.getAttribute('data-id'), this.getAttribute('data-nombre')); });
+  });
+}
+
+function loadData() {
+  fetch('/api/stock', {headers: {'x-admin-password': PASS}})
+    .then(function(r) { return r.json(); })
+    .then(function(d) { DATA = d; renderStock(); renderCats(); });
+}
+
+function changeStock(catId, size, delta) {
+  var qty = Math.max(0, ((DATA.stock[catId] && DATA.stock[catId][size]) || 0) + delta);
+  if (!DATA.stock[catId]) DATA.stock[catId] = {};
+  DATA.stock[catId][size] = qty;
+  renderStock();
+  scheduleStock(catId, size, qty);
+}
+
+function scheduleStock(catId, size, qty) {
+  var key = catId + '-' + size;
+  if (saveTimers[key]) clearTimeout(saveTimers[key]);
+  saveTimers[key] = setTimeout(function() { setStock(catId, size, qty); }, 1500);
+}
+
+function setStock(catId, size, qty) {
+  qty = Math.max(0, qty);
+  fetch('/api/stock', {
+    method: 'PUT',
+    headers: {'x-admin-password': PASS, 'Content-Type': 'application/json'},
+    body: JSON.stringify({categoriaId: catId, size: size, quantity: qty})
+  }).then(function(r) { return r.json(); }).then(function(d) { DATA = d; renderStock(); });
+}
+
+function agregarCategoria() {
+  var nombre = document.getElementById('newNombre').value.trim();
+  var skuPrefix = document.getElementById('newSkuPrefix').value.trim().toUpperCase();
+  var emoji = document.getElementById('newEmoji').value.trim() || '📦';
+  var err = document.getElementById('catError');
+  if (!nombre || !skuPrefix) { err.textContent = 'Completa nombre y prefijo SKU'; err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  fetch('/api/categorias', {
+    method: 'POST',
+    headers: {'x-admin-password': PASS, 'Content-Type': 'application/json'},
+    body: JSON.stringify({nombre: nombre, skuPrefix: skuPrefix, emoji: emoji})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.error) { err.textContent = d.error; err.style.display = 'block'; return; }
+    document.getElementById('newNombre').value = '';
+    document.getElementById('newSkuPrefix').value = '';
+    document.getElementById('newEmoji').value = '';
+    loadData();
+  });
+}
+
+function eliminarCategoria(id, nombre) {
+  if (!confirm('Eliminar ' + nombre + '?')) return;
+  fetch('/api/categorias/' + id, {method: 'DELETE', headers: {'x-admin-password': PASS}})
+    .then(function(r) { return r.json(); }).then(function() { loadData(); });
+}
+
+function doSync() {
+  var btn = document.getElementById('syncBtn');
+  var box = document.getElementById('syncResult');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Sincronizando...';
+  box.style.display = 'none';
+  fetch('/api/sync', {method: 'POST', headers: {'x-admin-password': PASS}})
+    .then(function(r) { return r.json(); }).then(function(d) {
+      btn.disabled = false; btn.textContent = 'Sincronizar ahora';
+      box.style.display = 'block';
+      if (d.error) { box.innerHTML = '<div class="log-item"><span class="log-err">X</span><span>' + d.error + '</span></div>'; return; }
+      box.innerHTML = (d.results || []).map(function(r) {
+        return '<div class="log-item"><span class="log-ok">OK</span><span>' + r + '</span></div>';
+      }).join('') || '<div class="log-item"><span class="log-ok">OK</span><span>Todo sincronizado</span></div>';
+      loadData();
+    }).catch(function() { btn.disabled = false; btn.textContent = 'Sincronizar ahora'; });
+}
+
+function loadLogs() {
+  fetch('/api/logs', {headers: {'x-admin-password': PASS}})
+    .then(function(r) { return r.json(); }).then(function(logs) {
+      var box = document.getElementById('logsBox');
+      if (!logs.length) { box.innerHTML = '<p style="font-size:13px;color:var(--muted)">Sin eventos todavia.</p>'; return; }
+      box.innerHTML = logs.map(function(l) {
+        var time = new Date(l.ts).toLocaleString('es-AR', {dateStyle:'short', timeStyle:'short'});
+        return '<div class="log-item"><span class="log-time">' + time + '</span><span class="' + (l.tipo === 'error' ? 'log-err' : 'log-ok') + '">•</span><span>' + l.mensaje + '</span></div>';
+      }).join('');
+    });
+}
+</script>
+</body>
+</html>
